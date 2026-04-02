@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Somni V2 ‚Äî Wiring Diagram</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 30px 20px 10px;
+  }
+  header h1 {
+    font-size: 28px;
+    background: linear-gradient(135deg, #a78bfa, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  header p { color: #8b949e; margin-top: 6px; font-size: 14px; }
+
+  /* Step navigation */
+  .step-nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+  .step-btn {
+    padding: 8px 16px;
+    border: 1px solid #30363d;
+    border-radius: 20px;
+    background: #161b22;
+    color: #8b949e;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .step-btn:hover { border-color: #6366f1; color: #e6edf3; }
+  .step-btn.active {
+    background: #6366f1;
+    color: white;
+    border-color: #6366f1;
+  }
+  .step-btn.completed {
+    border-color: #238636;
+    color: #3fb950;
+  }
+
+  /* Main diagram area */
+  .diagram-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    gap: 30px;
+  }
+
+  .diagram-svg-wrap {
+    flex: 1;
+    background: #161b22;
+    border-radius: 16px;
+    border: 1px solid #30363d;
+    padding: 20px;
+    min-height: 600px;
+    position: relative;
+  }
+
+  .info-panel {
+    width: 320px;
+    flex-shrink: 0;
+  }
+  .info-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .info-card h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .info-card p {
+    color: #8b949e;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .info-card .highlight {
+    color: #e6edf3;
+    font-weight: 600;
+  }
+  .info-card .wire-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 2px 0;
+  }
+  .wire-red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+  .wire-black { background: rgba(100, 100, 100, 0.25); color: #aaa; }
+  .wire-orange { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+  .wire-green { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+  .wire-yellow { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+  .wire-white { background: rgba(255, 255, 255, 0.1); color: #e6edf3; }
+
+  .warning-box {
+    background: rgba(234, 179, 8, 0.08);
+    border: 1px solid rgba(234, 179, 8, 0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #eab308;
+    line-height: 1.5;
+  }
+
+  .success-box {
+    background: rgba(34, 197, 94, 0.08);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #22c55e;
+    line-height: 1.5;
+  }
+
+  /* SVG styles */
+  svg { width: 100%; height: 100%; }
+
+  .component {
+    cursor: pointer;
+    transition: filter 0.2s;
+  }
+  .component:hover { filter: brightness(1.2); }
+
+  .component-body {
+    rx: 8;
+    ry: 8;
+  }
+
+  .component-label {
+    fill: #e6edf3;
+    font-size: 12px;
+    font-weight: 600;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+  .component-sublabel {
+    fill: #8b949e;
+    font-size: 10px;
+    text-anchor: middle;
+    pointer-events: none;
+  }
+
+  .pin-dot {
+    fill: #e6edf3;
+    stroke: #30363d;
+    stroke-width: 1;
+  }
+  .pin-label {
+    fill: #8b949e;
+    font-size: 9px;
+    pointer-events: none;
+  }
+
+  /* Wire animations */
+  .wire {
+    fill: none;
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0.3;
+    transition: opacity 0.4s, stroke-width 0.3s;
+  }
+  .wire.active {
+    opacity: 1;
+    stroke-width: 3.5;
+  }
+  .wire.pulse {
+    animation: wirePulse 2s ease-in-out infinite;
+  }
+  @keyframes wirePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .wire-5v { stroke: #ef4444; }
+  .wire-gnd { stroke: #6b7280; }
+  .wire-3v3 { stroke: #fb923c; }
+  .wire-data-led { stroke: #4ade80; }
+  .wire-data-btn { stroke: #facc15; }
+  .wire-data-after-resistor { stroke: #e6edf3; }
+  .wire-usb { stroke: #60a5fa; }
+
+  /* Dim non-active in step mode */
+  .component.dimmed { opacity: 0.2; transition: opacity 0.4s; }
+  .wire.dimmed { opacity: 0.08; }
+  .component.active-component { opacity: 1; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px 20px 30px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #8b949e;
+  }
+  .legend-color {
+    width: 24px;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 900px) {
+    .diagram-container { flex-direction: column; }
+    .info-panel { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Somni V2 Wiring Diagram</h1>
+  <p>Click each step to see what connects where. Highlighted wires show the current step.</p>
+</header>
+
+<div class="step-nav">
+  <button class="step-btn active" data-step="0">Overview</button>
+  <button class="step-btn" data-step="1">1. Power</button>
+  <button class="step-btn" data-step="2">2. USB Mic</button>
+  <button class="step-btn" data-step="3">3. LEDs</button>
+  <button class="step-btn" data-step="4">4. Button</button>
+  <button class="step-btn" data-step="5">5. Full Test</button>
+</div>
+
+<div class="diagram-container">
+  <div class="diagram-svg-wrap">
+    <svg viewBox="0 0 680 520" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- ===== WIRES (drawn first, behind components) ===== -->
+
+      <!-- POWER: Breakout 5V ‚Üí Pi Pin 2 -->
+      <path class="wire wire-5v" id="w-pwr-pi"
+        d="M 140,90 L 140,120 Q 140,140 160,140 L 280,140 Q 310,140 310,160 L 310,180" />
+
+      <!-- POWER: Breakout 5V ‚Üí 5V rail (to LED + converter) -->
+      <path class="wire wire-5v" id="w-pwr-rail"
+        d="M 140,90 L 140,120 Q 140,140 160,140 L 460,140 Q 480,140 480,160" />
+
+      <!-- POWER: 5V rail ‚Üí LED VCC -->
+      <path class="wire wire-5v" id="w-pwr-led"
+        d="M 480,160 L 480,180" />
+
+      <!-- POWER: 5V rail ‚Üí Converter HV -->
+      <path class="wire wire-5v" id="w-pwr-conv"
+        d="M 480,160 L 430,160 Q 410,160 410,180 L 410,290 Q 410,310 400,310 L 380,310" />
+
+      <!-- GND: Breakout GND ‚Üí Pi Pin 6 -->
+      <path class="wire wire-gnd" id="w-gnd-pi"
+        d="M 180,90 L 180,120 Q 180,135 195,135 L 325,135 Q 340,135 340,155 L 340,180" />
+
+      <!-- GND: shared to LED -->
+      <path class="wire wire-gnd" id="w-gnd-led"
+        d="M 340,155 L 520,155 Q 535,155 535,170 L 535,180" />
+
+      <!-- GND: shared to Converter -->
+      <path class="wire wire-gnd" id="w-gnd-conv"
+        d="M 340,155 L 340,350 Q 340,370 355,370 L 380,370" />
+
+      <!-- GND: to Button -->
+      <path class="wire wire-gnd" id="w-gnd-btn"
+        d="M 340,155 L 130,155 Q 110,155 110,170 L 110,410 Q 110,430 130,430 L 160,430" />
+
+      <!-- GND: to Capacitor -->
+      <path class="wire wire-gnd" id="w-gnd-cap"
+        d="M 535,170 L 590,170 Q 610,170 610,190 L 610,430 Q 610,445 595,445 L 570,445" />
+
+      <!-- 3.3V: Pi ‚Üí Converter LV -->
+      <path class="wire wire-3v3" id="w-3v3"
+        d="M 280,250 L 260,250 Q 240,250 240,270 L 240,310 Q 240,330 260,330 L 280,330" />
+
+      <!-- DATA: Pi GPIO18 ‚Üí Converter LV1 -->
+      <path class="wire wire-data-led" id="w-gpio18"
+        d="M 280,280 L 250,280 Q 230,280 230,300 L 230,350 Q 230,370 250,370 L 280,370" />
+
+      <!-- DATA: Converter HV1 ‚Üí Resistor ‚Üí LED DIN -->
+      <path class="wire wire-data-led" id="w-conv-resistor"
+        d="M 480,350 L 510,350" />
+
+      <!-- After resistor (white) -->
+      <path class="wire wire-data-after-resistor" id="w-resistor-led"
+        d="M 560,350 L 590,350 Q 610,350 610,330 L 610,280 Q 610,260 590,260 L 535,260" />
+
+      <!-- BUTTON: GPIO17 ‚Üí Button -->
+      <path class="wire wire-data-btn" id="w-gpio17"
+        d="M 280,220 L 250,220 Q 230,220 230,240 L 230,400 Q 230,410 215,410 L 200,410" />
+
+      <!-- USB: Mic ‚Üí OTG ‚Üí Pi -->
+      <path class="wire wire-usb" id="w-usb"
+        d="M 95,280 L 145,280 L 215,250 Q 250,235 280,235" />
+
+
+      <!-- ===== COMPONENTS ===== -->
+
+      <!-- USB-C Power Brick -->
+      <g class="component" id="c-brick" data-steps="1">
+        <rect class="component-body" x="60" y="20" width="180" height="50" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+        <text class="component-label" x="150" y="42">USB-C Power Brick</text>
+        <text class="component-sublabel" x="150" y="56">5V / 2.5A</text>
+      </g>
+
+      <!-- Micro-USB Breakout Board -->
+      <g class="component" id="c-breakout" data-steps="1">
+        <rect class="component-body" x="105" y="75" width="110" height="30" fill="#1e293b" stroke="#ef4444" stroke-width="1.5" />
+        <text class="component-label" x="160" y="94">Breakout Board</text>
+        <circle class="pin-dot" cx="140" cy="90" r="4" fill="#ef4444" />
+        <text class="pin-label" x="130" y="84" text-anchor="end" fill="#ef4444">5V</text>
+        <circle class="pin-dot" cx="180" cy="90" r="4" fill="#6b7280" />
+        <text class="pin-label" x="192" y="84" fill="#6b7280">GND</text>
+      </g>
+
+      <!-- Raspberry Pi Zero 2 WH -->
+      <g class="component" id="c-pi" data-steps="1,2,3,4">
+        <rect class="component-body" x="280" y="180" width="120" height="110" fill="#1a2332" stroke="#6366f1" stroke-width="2" />
+        <text class="component-label" x="340" y="202">Raspberry Pi</text>
+        <text class="component-sublabel" x="340" y="215">Zero 2 WH</text>
+        <!-- Pin labels on left side -->
+        <circle class="pin-dot" cx="280" cy="220" r="3" fill="#facc15" />
+        <text class="pin-label" x="286" y="224" text-anchor="start" fill="#facc15">GPIO 17</text>
+        <circle class="pin-dot" cx="280" cy="250" r="3" fill="#fb923c" />
+        <text class="pin-label" x="286" y="254" text-anchor="start" fill="#fb923c">3.3V</text>
+        <circle class="pin-dot" cx="280" cy="280" r="3" fill="#4ade80" />
+        <text class="pin-label" x="286" y="284" text-anchor="start" fill="#4ade80">GPIO 18</text>
+        <!-- Pin labels on top -->
+        <circle class="pin-dot" cx="310" cy="180" r="3" fill="#ef4444" />
+        <text class="pin-label" x="310" y="175" text-anchor="middle" fill="#ef4444">5V in</text>
+        <circle class="pin-dot" cx="340" cy="180" r="3" fill="#6b7280" />
+        <text class="pin-label" x="340" y="175" text-anchor="middle" fill="#6b7280">GND</text>
+        <!-- USB port -->
+        <rect x="282" y="230" width="8" height="16" rx="2" fill="#30363d" stroke="#60a5fa" stroke-width="1" />
+        <text class="pin-label" x="278" y="241" text-anchor="end" fill="#60a5fa">USB</text>
+      </g>
+
+      <!-- USB Mic -->
+      <g class="component" id="c-mic" data-steps="2">
+        <rect class="component-body" x="40" y="260" width="80" height="40" fill="#1e293b" stroke="#60a5fa" stroke-width="1.5" />
+        <text class="component-label" x="80" y="278">USB Mic</text>
+        <text class="component-sublabel" x="80" y="292">SunFounder</text>
+      </g>
+
+      <!-- OTG Adapter -->
+      <g class="component" id="c-otg" data-steps="2">
+        <rect class="component-body" x="130" y="265" width="60" height="30" fill="#1e293b" stroke="#60a5fa" stroke-width="1" />
+        <text class="component-sublabel" x="160" y="284">OTG</text>
+      </g>
+
+      <!-- Logic Level Converter -->
+      <g class="component" id="c-converter" data-steps="3">
+        <rect class="component-body" x="280" y="300" width="200" height="80" fill="#1a2332" stroke="#a78bfa" stroke-width="1.5" />
+        <text class="component-label" x="380" y="320">Logic Level Converter</text>
+        <!-- Low side labels -->
+        <text class="component-sublabel" x="310" y="338" fill="#fb923c">LOW (3.3V)</text>
+        <circle class="pin-dot" cx="280" cy="330" r="3" fill="#fb923c" />
+        <text class="pin-label" x="290" y="352" fill="#fb923c">LV</text>
+        <circle class="pin-dot" cx="280" cy="370" r="3" fill="#4ade80" />
+        <text class="pin-label" x="290" y="390" fill="#4ade80">LV1</text>
+        <!-- High side labels -->
+        <text class="component-sublabel" x="450" y="338" fill="#ef4444">HIGH (5V)</text>
+        <circle class="pin-dot" cx="380" cy="310" r="3" fill="#ef4444" />
+        <text class="pin-label" x="390" y="305" fill="#ef4444">HV</text>
+        <circle class="pin-dot" cx="480" cy="350" r="3" fill="#4ade80" />
+        <text class="pin-label" x="470" y="395" fill="#4ade80">HV1</text>
+        <!-- GND dots -->
+        <circle class="pin-dot" cx="280" cy="350" r="3" fill="#6b7280" />
+        <circle class="pin-dot" cx="380" cy="370" r="3" fill="#6b7280" />
+        <text class="pin-label" x="290" y="368" fill="#6b7280">GND</text>
+        <text class="pin-label" x="390" y="388" fill="#6b7280">GND</text>
+      </g>
+
+      <!-- 330 Ohm Resistor -->
+      <g class="component" id="c-resistor" data-steps="3">
+        <rect x="510" y="340" width="50" height="20" rx="4" fill="#1e293b" stroke="#e6edf3" stroke-width="1.5" />
+        <text class="component-sublabel" x="535" y="354" fill="#e6edf3">330 Ohm</text>
+      </g>
+
+      <!-- LED Strip -->
+      <g class="component" id="c-led" data-steps="3">
+        <rect class="component-body" x="470" y="180" width="80" height="90" fill="#1a2332" stroke="#a78bfa" stroke-width="2" />
+        <text class="component-label" x="510" y="205">LED Strip</text>
+        <text class="component-sublabel" x="510" y="218">WS2812B</text>
+        <!-- Pins -->
+        <circle class="pin-dot" cx="480" cy="180" r="3" fill="#ef4444" />
+        <text class="pin-label" x="485" y="195" fill="#ef4444">VCC</text>
+        <circle class="pin-dot" cx="535" cy="180" r="3" fill="#6b7280" />
+        <text class="pin-label" x="530" y="195" fill="#6b7280">GND</text>
+        <circle class="pin-dot" cx="535" cy="260" r="3" fill="#e6edf3" />
+        <text class="pin-label" x="525" y="256" fill="#e6edf3">DIN</text>
+        <!-- LED circles (decorative) -->
+        <circle cx="490" cy="245" r="6" fill="#7c3aed" opacity="0.6" />
+        <circle cx="510" cy="245" r="6" fill="#7c3aed" opacity="0.4" />
+        <circle cx="530" cy="245" r="6" fill="#7c3aed" opacity="0.6" />
+      </g>
+
+      <!-- Capacitor -->
+      <g class="component" id="c-cap" data-steps="3">
+        <rect class="component-body" x="540" y="420" width="50" height="50" rx="25" fill="#1e293b" stroke="#eab308" stroke-width="1.5" />
+        <text class="component-sublabel" x="565" y="442" fill="#eab308">1000</text>
+        <text class="component-sublabel" x="565" y="455" fill="#eab308">uF</text>
+        <!-- Polarity -->
+        <text class="pin-label" x="542" y="418" fill="#ef4444" font-size="14" font-weight="bold">+</text>
+        <text class="pin-label" x="575" y="418" fill="#6b7280" font-size="14" font-weight="bold">-</text>
+        <!-- 5V to cap+ -->
+        <path class="wire wire-5v" id="w-5v-cap"
+          d="M 480,160 L 480,475 Q 480,490 500,490 L 540,490 Q 555,490 555,475 L 555,470" />
+      </g>
+
+      <!-- Button -->
+      <g class="component" id="c-button" data-steps="4">
+        <rect class="component-body" x="130" y="395" width="80" height="40" fill="#1e293b" stroke="#facc15" stroke-width="1.5" />
+        <text class="component-label" x="170" y="414">Button</text>
+        <text class="component-sublabel" x="170" y="428">press to stop</text>
+        <circle class="pin-dot" cx="200" cy="410" r="3" fill="#facc15" />
+        <circle class="pin-dot" cx="160" cy="430" r="3" fill="#6b7280" />
+      </g>
+
+    </svg>
+  </div>
+
+  <div class="info-panel" id="info-panel">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-color" style="background:#ef4444"></div> 5V Power</div>
+  <div class="legend-item"><div class="legend-color" style="background:#6b7280"></div> Ground</div>
+  <div class="legend-item"><div class="legend-color" style="background:#fb923c"></div> 3.3V</div>
+  <div class="legend-item"><div class="legend-color" style="background:#4ade80"></div> LED Data</div>
+  <div class="legend-item"><div class="legend-color" style="background:#facc15"></div> Button Signal</div>
+  <div class="legend-item"><div class="legend-color" style="background:#60a5fa"></div> USB Audio</div>
+  <div class="legend-item"><div class="legend-color" style="background:#e6edf3"></div> After Resistor</div>
+</div>
+
+<script>
+const steps = {
+  0: {
+    title: "Overview",
+    icon: "&#128065;",
+    description: `This is the full wiring diagram for Somni. There are <span class="highlight">5 things</span> to connect to the Raspberry Pi:<br><br>
+      <span class="wire-label wire-red">&#9679; Power (red)</span> from the USB brick powers everything<br>
+      <span class="wire-label wire-black">&#9679; Ground (gray)</span> is the return path ‚Äî everything shares one<br>
+      <span class="wire-label wire-green">&#9679; LED data (green)</span> tells each LED what color to be<br>
+      <span class="wire-label wire-yellow">&#9679; Button (yellow)</span> a simple on/off signal<br>
+      <span class="wire-label" style="background:rgba(96,165,250,0.15);color:#60a5fa">&#9679; USB mic (blue)</span> just plugs in<br><br>
+      Click through each step to see how to build it, one connection at a time.`,
+    wires: ["w-pwr-pi","w-pwr-rail","w-pwr-led","w-pwr-conv","w-gnd-pi","w-gnd-led","w-gnd-conv","w-gnd-btn","w-gnd-cap","w-3v3","w-gpio18","w-conv-resistor","w-resistor-led","w-gpio17","w-usb","w-5v-cap"],
+    components: ["c-brick","c-breakout","c-pi","c-mic","c-otg","c-converter","c-resistor","c-led","c-cap","c-button"]
+  },
+  1: {
+    title: "Step 1: Power",
+    icon: "&#9889;",
+    description: `<span class="highlight">Think of it like plumbing:</span> electricity flows from the power brick, through the breakout board, and splits to feed the Pi and LEDs.<br><br>
+      <b>Do this:</b><br>
+      1. Plug your <span class="highlight">USB-C cable</span> from the power brick into the <span class="highlight">breakout board</span><br>
+      2. Run a <span class="wire-label wire-red">red wire</span> from the breakout's <b>5V pad</b> to <b>Pi Pin 2</b><br>
+      3. Run a <span class="wire-label wire-black">black wire</span> from the breakout's <b>GND pad</b> to <b>Pi Pin 6</b><br><br>
+      That's it. The Pi gets power through these two wires instead of its normal USB port (because the mic needs that port).`,
+    warning: "Powering through GPIO skips the Pi's built-in fuse. Make sure your power brick is exactly 5V. A cheap/sketchy charger could damage the Pi.",
+    wires: ["w-pwr-pi","w-gnd-pi"],
+    components: ["c-brick","c-breakout","c-pi"]
+  },
+  2: {
+    title: "Step 2: USB Mic",
+    icon: "&#127908;",
+    description: `<span class="highlight">This one's the easiest.</span> It's literally just plugging things together.<br><br>
+      <b>Do this:</b><br>
+      1. Plug the <span class="highlight">USB mic</span> into the big end of the <span class="highlight">OTG adapter</span><br>
+      2. Plug the small end of the OTG adapter into the Pi's <b>data micro-USB port</b> (the one closer to the center of the board, NOT the one at the edge)<br><br>
+      <span class="highlight">Which port is which?</span><br>
+      The Pi Zero has two micro-USB ports side by side. The one at the <b>very edge</b> of the board is for power (we're not using it). The one <b>slightly inward</b> is for data ‚Äî that's where the mic goes.`,
+    success: "Test: SSH into the Pi and run <code>arecord -l</code>. If the mic shows up, you're good.",
+    wires: ["w-usb"],
+    components: ["c-mic","c-otg","c-pi"]
+  },
+  3: {
+    title: "Step 3: LEDs",
+    icon: "&#128308;",
+    description: `<span class="highlight">This is the most complex step</span> but it's just 3 things connecting to the LED strip: power, ground, and data.<br><br>
+      <b>The problem:</b> The Pi talks in 3.3V, but the LEDs listen in 5V. The <span class="highlight">logic level converter</span> is a translator between them.<br><br>
+      <b>Do this:</b><br>
+      1. Put the <b>converter</b> on the breadboard<br>
+      2. Left side (LOW/3.3V):<br>
+      &nbsp;&nbsp;&#8226; <span class="wire-label wire-orange">LV</span> &larr; Pi 3.3V (Pin 1)<br>
+      &nbsp;&nbsp;&#8226; <span class="wire-label wire-green">LV1</span> &larr; Pi GPIO 18 (Pin 12)<br>
+      &nbsp;&nbsp;&#8226; <span class="wire-label wire-black">GND</span> &larr; ground rail<br>
+      3. Right side (HIGH/5V):<br>
+      &nbsp;&nbsp;&#8226; <span class="wire-label wire-red">HV</span> &larr; 5V rail<br>
+      &nbsp;&nbsp;&#8226; <span class="wire-label wire-green">HV1</span> &rarr; 330&Omega; resistor &rarr; LED DIN<br>
+      &nbsp;&nbsp;&#8226; <span class="wire-label wire-black">GND</span> &rarr; ground rail<br>
+      4. <span class="wire-label wire-red">LED VCC</span> &larr; 5V rail<br>
+      5. <span class="wire-label wire-black">LED GND</span> &larr; ground rail<br>
+      6. Place the <b>capacitor</b> across 5V and GND at the LED strip`,
+    warning: "The capacitor has a stripe on one side ‚Äî that's the NEGATIVE side, it goes to GND. If you put it in backwards, it can pop. The 330&Omega; resistor goes between the converter output and the first LED ‚Äî it protects against voltage spikes.",
+    wires: ["w-pwr-rail","w-pwr-led","w-pwr-conv","w-gnd-led","w-gnd-conv","w-gnd-cap","w-3v3","w-gpio18","w-conv-resistor","w-resistor-led","w-5v-cap"],
+    components: ["c-pi","c-converter","c-resistor","c-led","c-cap"]
+  },
+  4: {
+    title: "Step 4: Button",
+    icon: "&#128992;",
+    description: `<span class="highlight">Super simple ‚Äî just two wires.</span><br><br>
+      The button works like a light switch. When you press it, it connects GPIO 17 to ground, which the Pi reads as "pressed."<br><br>
+      <b>Do this:</b><br>
+      1. Connect one button wire (yellow) to <b>Pi GPIO 17</b> (Pin 11)<br>
+      2. Connect the other button wire (black) to <b>Pi GND</b> (Pin 9)<br><br>
+      <span class="highlight">Why no resistor?</span><br>
+      The Pi has a built-in "pull-up" resistor that the software turns on. It keeps the signal HIGH normally, and when you press the button, it goes LOW. The code checks for this LOW signal.`,
+    success: "Test: Run the button test script from the blueprint. Press the button ‚Äî if it prints 'PRESSED!' you're done.",
+    wires: ["w-gpio17","w-gnd-btn"],
+    components: ["c-pi","c-button"]
+  },
+  5: {
+    title: "Step 5: Full Test",
+    icon: "&#9989;",
+    description: `<span class="highlight">Everything is connected!</span> Time to test the whole system.<br><br>
+      <b>The full flow should be:</b><br><br>
+      1. &#128276; Play your phone alarm near the mic<br>
+      2. &#128994; LEDs glow purple (alarm detected!)<br>
+      3. &#127908; Talk about your dream<br>
+      4. &#128992; Press the button to stop<br>
+      5. &#9989; LEDs flash green (saved!)<br><br>
+      Run <code>python3 somni.py</code> over SSH to test it all together.<br><br>
+      <span class="highlight">If something doesn't work,</span> go back to the individual step and re-test that part in isolation. The most common issue is loose jumper wires.`,
+    success: "If the full flow works end to end, your hardware is ready to go into the enclosure!",
+    wires: ["w-pwr-pi","w-pwr-rail","w-pwr-led","w-pwr-conv","w-gnd-pi","w-gnd-led","w-gnd-conv","w-gnd-btn","w-gnd-cap","w-3v3","w-gpio18","w-conv-resistor","w-resistor-led","w-gpio17","w-usb","w-5v-cap"],
+    components: ["c-brick","c-breakout","c-pi","c-mic","c-otg","c-converter","c-resistor","c-led","c-cap","c-button"]
+  }
+};
+
+const allWires = document.querySelectorAll('.wire');
+const allComponents = document.querySelectorAll('.component');
+const stepBtns = document.querySelectorAll('.step-btn');
+const infoPanel = document.getElementById('info-panel');
+let currentStep = 0;
+
+function setStep(step) {
+  currentStep = step;
+  const data = steps[step];
+
+  // Update buttons
+  stepBtns.forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.step) === step);
+  });
+
+  // Update wires
+  allWires.forEach(wire => {
+    if (step === 0) {
+      wire.classList.add('active');
+      wire.classList.remove('dimmed', 'pulse');
+    } else if (data.wires.includes(wire.id)) {
+      wire.classList.add('active', 'pulse');
+      wire.classList.remove('dimmed');
+    } else {
+      wire.classList.remove('active', 'pulse');
+      wire.classList.add('dimmed');
+    }
+  });
+
+  // Update components
+  allComponents.forEach(comp => {
+    if (step === 0) {
+      comp.classList.remove('dimmed');
+      comp.classList.add('active-component');
+    } else if (data.components.includes(comp.id)) {
+      comp.classList.remove('dimmed');
+      comp.classList.add('active-component');
+    } else {
+      comp.classList.add('dimmed');
+      comp.classList.remove('active-component');
+    }
+  });
+
+  // Update info panel
+  let html = `<div class="info-card">
+    <h3>${data.icon} ${data.title}</h3>
+    <p>${data.description}</p>`;
+
+  if (data.warning) {
+    html += `<div class="warning-box">&#9888;&#65039; ${data.warning}</div>`;
+  }
+  if (data.success) {
+    html += `<div class="success-box">&#9989; ${data.success}</div>`;
+  }
+
+  html += `</div>`;
+  infoPanel.innerHTML = html;
+}
+
+stepBtns.forEach(btn => {
+  btn.addEventListener('click', () => setStep(parseInt(btn.dataset.step)));
+});
+
+// Initialize
+setStep(0);
+</script>
+
+</body>
+</html>
