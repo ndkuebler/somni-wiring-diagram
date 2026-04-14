@@ -3,387 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Coalition — Application</title>
+<title>The Coalition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0a0a0a;
-    --bg-soft: #111111;
-    --ink: #ebe6d9;
-    --ink-dim: #8a8374;
-    --rule: #2a2720;
-    --gold: #c9a961;
-    --gold-dim: #8a7440;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Inter', -apple-system, sans-serif;
-    font-weight: 300;
-    font-size: 15px;
-    line-height: 1.7;
-    letter-spacing: 0.01em;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  .serif {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-    font-weight: 300;
-    letter-spacing: 0.005em;
-  }
-
-  /* Layout */
-  .wrap {
-    max-width: 920px;
-    margin: 0 auto;
-    padding: 0 32px;
-  }
-
-  section {
-    padding: 120px 0;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  section:last-of-type { border-bottom: none; }
-
-  /* Nav */
-  nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: rgba(10, 10, 10, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--rule);
-  }
-  nav .wrap {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 20px;
-    padding-bottom: 20px;
-  }
-  .mark {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-style: italic;
-    letter-spacing: 0.08em;
-    color: var(--gold);
-  }
-  nav ul {
-    list-style: none;
-    display: flex;
-    gap: 36px;
-  }
-  nav a {
-    color: var(--ink-dim);
-    text-decoration: none;
-    font-size: 12px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    transition: color 0.3s;
-  }
-  nav a:hover { color: var(--ink); }
-
-  @media (max-width: 640px) {
-    nav ul { display: none; }
-  }
-
-  /* Hero */
-  .hero {
-    min-height: 92vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 80px 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .eyebrow {
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold-dim);
-    margin-bottom: 32px;
-  }
-  .eyebrow::before {
-    content: "";
-    display: inline-block;
-    width: 28px;
-    height: 1px;
-    background: var(--gold-dim);
-    vertical-align: middle;
-    margin-right: 14px;
-  }
-  h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: clamp(48px, 8vw, 96px);
-    line-height: 1.05;
-    letter-spacing: -0.01em;
-    margin-bottom: 32px;
-  }
-  h1 em {
-    font-style: italic;
-    color: var(--gold);
-  }
-  .lede {
-    font-size: 18px;
-    color: var(--ink-dim);
-    max-width: 560px;
-    margin-bottom: 48px;
-  }
-
-  /* Section headers */
-  .section-label {
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold-dim);
-    margin-bottom: 24px;
-  }
-  h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 300;
-    font-size: clamp(36px, 5vw, 56px);
-    line-height: 1.1;
-    margin-bottom: 48px;
-    max-width: 720px;
-  }
-
-  /* Tenets */
-  .tenets {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background: var(--rule);
-    border: 1px solid var(--rule);
-    margin-top: 48px;
-  }
-  .tenet {
-    background: var(--bg);
-    padding: 48px 36px;
-    min-height: 260px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-  .tenet-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 42px;
-    color: var(--gold);
-    font-weight: 300;
-  }
-  .tenet-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    line-height: 1.2;
-    margin-top: 24px;
-  }
-  .tenet-body {
-    color: var(--ink-dim);
-    font-size: 14px;
-    margin-top: 16px;
-  }
-  @media (max-width: 720px) {
-    .tenets { grid-template-columns: 1fr; }
-  }
-
-  /* Requirements */
-  .reqs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 64px;
-    margin-top: 24px;
-  }
-  .reqs h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 400;
-    font-size: 13px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin: 40px 0 20px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--rule);
-  }
-  .reqs ul {
-    list-style: none;
-  }
-  .reqs li {
-    padding: 14px 0;
-    border-bottom: 1px solid var(--rule);
-    color: var(--ink);
-    font-size: 15px;
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-  }
-  .reqs li::before {
-    content: "◆";
-    color: var(--gold);
-    font-size: 8px;
-    flex-shrink: 0;
-  }
-  .reqs li:last-child { border-bottom: none; }
-  @media (max-width: 720px) {
-    .reqs { grid-template-columns: 1fr; }
-  }
-
-  /* Application */
-  .form {
-    margin-top: 32px;
-  }
-  .prompt {
-    padding: 40px 0;
-    border-bottom: 1px solid var(--rule);
-  }
-  .prompt:last-child { border-bottom: none; }
-  .prompt-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 20px;
-  }
-  .prompt-num {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 14px;
-    color: var(--gold);
-    letter-spacing: 0.15em;
-  }
-  .prompt-limit {
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--ink-dim);
-  }
-  .prompt-q {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    line-height: 1.3;
-    color: var(--ink);
-    margin-bottom: 24px;
-  }
-  .field {
-    display: block;
-    margin-top: 24px;
-  }
-  .field label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--ink-dim);
-    margin-bottom: 10px;
-  }
-  input[type="text"],
-  input[type="email"],
-  input[type="number"],
-  textarea {
-    width: 100%;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--rule);
-    padding: 12px 0;
-    color: var(--ink);
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 300;
-    transition: border-color 0.3s;
-    resize: vertical;
-  }
-  input:focus, textarea:focus {
-    outline: none;
-    border-bottom-color: var(--gold);
-  }
-  textarea {
-    min-height: 120px;
-    line-height: 1.6;
-  }
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 32px;
-  }
-  @media (max-width: 640px) {
-    .grid-2 { grid-template-columns: 1fr; }
-  }
-
-  /* Button */
-  .submit {
-    margin-top: 56px;
-    background: transparent;
-    border: 1px solid var(--gold);
-    color: var(--gold);
-    padding: 18px 42px;
-    font-family: inherit;
-    font-size: 11px;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s;
-  }
-  .submit:hover {
-    background: var(--gold);
-    color: var(--bg);
-  }
-
-  /* Footer */
-  footer {
-    padding: 48px 0;
-    text-align: center;
-    color: var(--ink-dim);
-    font-size: 11px;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-  }
-  footer .mark {
-    display: block;
-    margin-bottom: 16px;
-    font-size: 16px;
-  }
-
-  /* Decorative divider */
-  .divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    margin: 48px 0;
-    color: var(--gold-dim);
-  }
-  .divider::before, .divider::after {
-    content: "";
-    flex: 1;
-    max-width: 120px;
-    height: 1px;
-    background: var(--rule);
-  }
-  .divider span {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 14px;
-    letter-spacing: 0.2em;
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <nav>
   <div class="wrap">
-    <div class="mark">The Coalition</div>
+    <a href="index.html" class="mark">The Coalition</a>
     <ul>
       <li><a href="#tenets">Tenets</a></li>
-      <li><a href="#requirements">Requirements</a></li>
-      <li><a href="#apply">Apply</a></li>
+      <li><a href="#requirements">Standards</a></li>
+      <li><a href="apply.html">Apply</a></li>
     </ul>
   </div>
 </nav>
@@ -391,15 +25,16 @@
 <header class="hero">
   <div class="wrap">
     <div class="eyebrow">By Invitation &nbsp;·&nbsp; Est. MMXXVI</div>
-    <h1>A society of the <em>early</em>,<br>the <em>dedicated</em>,<br>the <em>ever-talking</em>.</h1>
-    <p class="lede">Admission is limited. Standards are not. What follows is the complete application — read carefully, answer truthfully, and submit only if the three tenets feel less like rules and more like how you already live.</p>
+    <h1>A coalition of the <em>early</em>,<br>the <em>dedicated</em>,<br>the <em>ever-talking</em>.</h1>
+    <p class="lede">The Coalition is a private order built on three tenets and a shared standard of character. We are not a club. We are the people who were already going to be there at 5:30 — you just hadn't met us yet.</p>
+    <a href="apply.html" class="cta">Begin Application</a>
   </div>
 </header>
 
 <section id="tenets">
   <div class="wrap">
     <div class="section-label">The Three Tenets</div>
-    <h2 class="serif">Non-negotiable. These are not preferences — they are the floor.</h2>
+    <h2 class="serif">What we stand for — without compromise.</h2>
 
     <div class="tenets">
       <div class="tenet">
@@ -407,21 +42,21 @@
           <div class="tenet-num">I.</div>
           <div class="tenet-title">5:30 at the athletic facility</div>
         </div>
-        <div class="tenet-body">Arrival before the sun. No excuses, no snooze, no exceptions.</div>
+        <div class="tenet-body">Arrival before the sun. No excuses, no snooze, no exceptions. The day is won before most of the world has turned over.</div>
       </div>
       <div class="tenet">
         <div>
           <div class="tenet-num">II.</div>
           <div class="tenet-title">Chocolate milk</div>
         </div>
-        <div class="tenet-body">The recovery drink of record. Consumed with reverence.</div>
+        <div class="tenet-body">The recovery drink of record. Consumed with reverence. A reminder that the best things are often the simplest.</div>
       </div>
       <div class="tenet">
         <div>
           <div class="tenet-num">III.</div>
           <div class="tenet-title">Actively chopping it up</div>
         </div>
-        <div class="tenet-body">Conversation is currency. The silent need not apply.</div>
+        <div class="tenet-body">Conversation is currency. We show up, we speak up, we keep the room alive. The silent need not apply.</div>
       </div>
     </div>
   </div>
@@ -429,22 +64,22 @@
 
 <section id="requirements">
   <div class="wrap">
-    <div class="section-label">Eligibility</div>
-    <h2 class="serif">What every candidate must demonstrate before being considered.</h2>
+    <div class="section-label">Our Standard</div>
+    <h2 class="serif">The qualities every member is expected to embody — and demonstrate, daily.</h2>
 
     <div class="reqs">
       <div>
         <h3>Character</h3>
         <ul>
-          <li>Alignment with all three tenets</li>
           <li>Consistency — in training, in conduct, in word</li>
           <li>Dedication beyond the visible</li>
+          <li>Alignment with all three tenets</li>
         </ul>
       </div>
       <div>
-        <h3>Extracurricular</h3>
+        <h3>Pursuit</h3>
         <ul>
-          <li>Gymnastics</li>
+          <li>Gymnastics or equivalent athletic rigor</li>
           <li>Command of a musical instrument</li>
           <li>Demonstrable skill at video games</li>
         </ul>
@@ -453,93 +88,32 @@
         <h3>Academic</h3>
         <ul>
           <li>Unweighted GPA above 3.8</li>
-          <li>Submission of ACT or SAT score</li>
+          <li>Submitted ACT or SAT</li>
         </ul>
       </div>
       <div>
-        <h3>Written</h3>
+        <h3>Voice</h3>
         <ul>
-          <li>Personal essay</li>
-          <li>One 100-word response</li>
-          <li>Two single-sentence supplementals</li>
+          <li>Willing to defend a hot take</li>
+          <li>Able to host a table</li>
+          <li>Present — wherever present is required</li>
         </ul>
       </div>
     </div>
   </div>
 </section>
 
-<section id="apply">
+<section class="closing">
   <div class="wrap">
-    <div class="section-label">The Application</div>
-    <h2 class="serif">Answer with the care the questions deserve.</h2>
-
-    <form class="form" onsubmit="event.preventDefault(); alert('Application received. You will be contacted if selected.');">
-
-      <div class="grid-2">
-        <div class="field">
-          <label>Full Name</label>
-          <input type="text" required>
-        </div>
-        <div class="field">
-          <label>Email</label>
-          <input type="email" required>
-        </div>
-        <div class="field">
-          <label>High School GPA</label>
-          <input type="text" placeholder="e.g. 3.94" required>
-        </div>
-        <div class="field">
-          <label>ACT / SAT Score</label>
-          <input type="text" placeholder="e.g. 34 ACT / 1520 SAT" required>
-        </div>
-      </div>
-
-      <div class="divider"><span>Written Portion</span></div>
-
-      <div class="prompt">
-        <div class="prompt-meta">
-          <div class="prompt-num">I. &nbsp;Personal Essay</div>
-          <div class="prompt-limit">No word limit</div>
-        </div>
-        <div class="prompt-q">Tell us who you are — in the shape and length you believe the answer requires.</div>
-        <textarea rows="10" required></textarea>
-      </div>
-
-      <div class="prompt">
-        <div class="prompt-meta">
-          <div class="prompt-num">II. &nbsp;The 100</div>
-          <div class="prompt-limit">100 words</div>
-        </div>
-        <div class="prompt-q">Describe a moment that proves you live by the three tenets — not just observe them.</div>
-        <textarea rows="6" required></textarea>
-      </div>
-
-      <div class="prompt">
-        <div class="prompt-meta">
-          <div class="prompt-num">III. &nbsp;Supplemental</div>
-          <div class="prompt-limit">One sentence</div>
-        </div>
-        <div class="prompt-q">What is your hottest take?</div>
-        <input type="text" required>
-      </div>
-
-      <div class="prompt">
-        <div class="prompt-meta">
-          <div class="prompt-num">IV. &nbsp;Supplemental</div>
-          <div class="prompt-limit">One sentence</div>
-        </div>
-        <div class="prompt-q">What is your perfect dinner, and why?</div>
-        <input type="text" required>
-      </div>
-
-      <button type="submit" class="submit">Submit Application</button>
-    </form>
+    <div class="section-label">An Invitation</div>
+    <p class="mono">“The tenets are not rules. They are how the right people already live.”</p>
+    <a href="apply.html" class="cta">Begin Application</a>
   </div>
 </section>
 
 <footer>
-  <div class="mark">S · C · M</div>
-  <div>The Coalition &nbsp;·&nbsp; By Invitation Only &nbsp;·&nbsp; MMXXVI</div>
+  <a href="index.html" class="mark">The Coalition</a>
+  <div>By Invitation Only &nbsp;·&nbsp; MMXXVI</div>
 </footer>
 
 </body>
